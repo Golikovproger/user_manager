@@ -52,6 +52,7 @@ private:
 
 signals:
   void updateUserList();
+  void updateGroupList();
 };
 
 #endif // USERSMANAGER_H

@@ -25,6 +25,10 @@ ApplicationWindow {
         function onUpdateUserList() {
             userListView.model = users.getUsersList()
         }
+
+        function onUpdateGroupList() {
+            groupListView.model = users.getGroupsList()()
+        }
     }
 
 
@@ -87,6 +91,7 @@ ApplicationWindow {
                 Button {
                     Layout.fillWidth: true
                     text: qsTr("Удалить")
+                    onClicked: users.deleteUser(selectedUser)
                 }
             }
 
@@ -185,6 +190,7 @@ ApplicationWindow {
                     Button {
                         Layout.fillWidth: true
                         text: qsTr("Add")
+                        onClicked: newGroupPopup.open()
                     }
 
                     Button {
@@ -284,6 +290,60 @@ ApplicationWindow {
                         onClicked: {
                             users.addUser(nameField.text, password.text)
                             newUserPopup.close()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Popup {
+        id: newGroupPopup
+        width: 300
+        height: 400
+        modal: true
+
+        Rectangle {
+            width: parent.width
+            height: parent.height
+            color: "white"
+            border.color: "black"
+            border.width: 1
+            radius: 5
+
+            ColumnLayout {
+                anchors.fill: parent
+                anchors.margins: 10
+                spacing: 10
+
+                Text {
+                    text: qsTr("Create New Group")
+                    font.bold: true
+                }
+
+                Text {
+                    text: qsTr("Create a new Group")
+                }
+
+                TextField {
+                    id: groupField
+                    placeholderText: qsTr("GroupName")
+                }
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 10
+
+                    Button {
+                        text: qsTr("Cancel")
+                        onClicked: newGroupPopup.close()
+                    }
+
+                    Button {
+                        text: qsTr("OK")
+                        onClicked: {
+                            users.addGroup(groupField.text)
+                            newGroupPopup.close()
                         }
                     }
                 }
