@@ -1,5 +1,6 @@
 #include "users.h"
 #include <QGuiApplication>
+#include <QIcon>
 #include <QQmlApplicationEngine>
 
 int main(int argc, char *argv[]) {
@@ -11,6 +12,8 @@ int main(int argc, char *argv[]) {
 
   qmlRegisterSingletonType(QUrl("qrc:/qml/theme/Theme.qml"), "Theme", 1, 0,
                            "Theme");
+
+  app.setWindowIcon(QIcon(":/assets/desktop_icon.png"));
 
   QObject::connect(&engine, &QQmlApplicationEngine::objectCreated, &app,
                    [url](QObject *obj, const QUrl &objUrl) {
