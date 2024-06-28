@@ -16,7 +16,7 @@ QStringList UsersManager::getUsersList() {
             role = \"Unknown\" \
         } \
         if (role != \"Unknown\" && role != \"System/Service Account\" && $1 != \"root\" && $1 != \"nobody\") { \
-            printf \" %s %s\\n\", $1, role \
+            printf \" %s\\n\", $1 \
         } \
     }' /etc/passwd";
   return executeCommand(awkScript);
@@ -34,15 +34,7 @@ void UsersManager::sudoRules(const QString &password) {
     qDebug() << "Error starting sudo process:" << process.errorString();
     return;
   }
-  //  while (process.waitForReadyRead()) {
-  //    qDebug() << "Output:" << process.readAllStandardOutput();
-  //  }
-  //  while (process.waitForReadyRead()) {
-  //    qDebug() << "Error Output:" << process.readAllStandardError();
-  //  }
   process.waitForFinished();
-
-  //  qDebug() << "Exit code:" << process.exitCode();
 }
 
 QStringList UsersManager::getGroupsList() {
@@ -86,7 +78,32 @@ bool UsersManager::addUser(const QString &username, const QString &password) {
 }
 
 bool UsersManager::deleteUser(const QString &username) {
-  return QProcess::execute("sudo", QStringList() << "userdel" << username) == 0;
+  QProcess process;
+
+  QString command = QString("sudo -S userdel -r %1").arg(username);
+
+  process.start(command);
+
+  if (!process.waitForStarted()) {
+    qDebug() << "Не удалось запустить процесс.";
+    return false;
+  }
+
+  if (!process.waitForFinished(-1)) {
+    qDebug() << "Процесс не завершился вовремя.";
+    return false;
+  }
+
+  int exitCode = process.exitCode();
+  if (exitCode == 0) {
+    qDebug() << "Пользователь" << username << "успешно удалён.";
+    emit updateUserList();
+    return true;
+  } else {
+    qDebug() << "Не удалось удалить пользователя. Ошибка:"
+             << process.readAllStandardError();
+    return false;
+  }
 }
 
 bool UsersManager::addGroup(const QString &groupname) {
