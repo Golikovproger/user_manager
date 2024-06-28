@@ -10,8 +10,8 @@ ApplicationWindow {
     visible: true
     width: 1366
     height: 768
-    title: qsTr("User & Groups")
-
+    minimumWidth: 640
+    minimumHeight: 360
     property int selectedIndex: -1
     property string selectedUser: ""
     property string currentGroup: ""
@@ -34,13 +34,6 @@ ApplicationWindow {
 
     Users {
         id: users
-    }
-
-    ListModel {
-        id: userModel
-        ListElement { name: "Alice"; group: "Admin"; info: "Alice is an administrator." }
-        ListElement { name: "Bob"; group: "User"; info: "Bob is a standard user." }
-        ListElement { name: "Charlie"; group: "Guest"; info: "Charlie is a guest." }
     }
 
     RowLayout {
@@ -113,9 +106,15 @@ ApplicationWindow {
             Text {
                 id: userInfoText
                 anchors.centerIn: parent
-                text: selectedIndex != -1 ? "Name: " + userModel.get(selectedIndex).name + "\nGroup: " + userModel.get(selectedIndex).group + "\nInfo: " + userModel.get(selectedIndex).info : "Select a user to see the details"
+                text: selectedIndex != -1 ? "Name: " + selectedUser + "\nPassword: " + "*****" : "Select a user to see the details"
                 wrapMode: Text.Wrap
             }
+        }
+
+        Button {
+            id: changePassword
+            text: qsTr("Сменить пароль")
+            onClicked: changePasswordPopup.open()
         }
     }
 
@@ -287,6 +286,10 @@ ApplicationWindow {
         }
     }
 
+    ListModel {
+           id: selectedUsers
+       }
+
     Popup {
         id: newGroupPopup
         width: 300
@@ -320,6 +323,29 @@ ApplicationWindow {
                     placeholderText: qsTr("GroupName")
                 }
 
+                GridLayout {
+                                anchors.leftMargin: Theme.gap
+                                columns: 2
+                                Repeater {
+                                    id: usersrepeater
+                                    model: users.getUsersList()
+
+                                    CheckBox {
+                                        id: _level_checkbox_
+                                        text: modelData
+                                        onClicked: {
+                                            if (_level_checkbox_.checked) {
+                                                selectedUsers.push(modelData)
+                                            } else {
+                                                var index = selectedUsers.indexOf(modelData)
+                                                if (index > -1) {
+                                                    selectedUsers.splice(index, 1)
+                                                }
+                                            }
+                                        }
+                                    } // end _level_checkbox_
+                                } // Repeater
+                            } // GridLayout
                 RowLayout {
                     Layout.fillWidth: true
                     spacing: 10
@@ -333,8 +359,49 @@ ApplicationWindow {
                         text: qsTr("OK")
                         onClicked: {
                             users.addGroup(groupField.text)
+                            for (var i = 0; i < selectedUsers.length; ++i) {
+                                                       users.addUserToGroup(selectedUsers[i], groupField.text)
+                                                   }
                             newGroupPopup.close()
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    Popup {
+        id: changePasswordPopup
+        width: 300
+        height: 400
+        modal: true
+        closePolicy: Popup.NoAutoClose
+        Rectangle {
+            width: parent.width
+            height: parent.height
+            color: "white"
+            border.color: "black"
+            border.width: 1
+            radius: 5
+
+            ColumnLayout {
+                anchors.fill: parent
+                spacing: 20
+
+                TextField {
+                    Layout.fillHeight: true
+                    Layout.fillWidth: true
+                    id: newUserPassword
+                    placeholderText: qsTr("NewPassword")
+                }
+
+                Button {
+                    Layout.fillHeight: true
+                    Layout.fillWidth: true
+                    text: qsTr("ОК")
+                    onClicked: {
+                        users.changeUserPassword(selectedUser,newUserPassword.text);
+                        changePasswordPopup.close();
                     }
                 }
             }
@@ -377,9 +444,6 @@ ApplicationWindow {
                     }
                 }
             }
-
-
-
         }
     }
 }
