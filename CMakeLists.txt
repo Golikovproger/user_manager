@@ -12,8 +12,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(Qt5 COMPONENTS Core Gui Qml Quick REQUIRED)
 
 add_executable(user_manager
+    assets.qrc
     qml.qrc
     src/main.cpp
+    src/users.cpp
 )
 
 target_link_libraries(user_manager PRIVATE Qt5::Core Qt5::Gui Qt5::Qml Qt5::Quick)
@@ -21,3 +23,4 @@ target_link_libraries(user_manager PRIVATE Qt5::Core Qt5::Gui Qt5::Qml Qt5::Quic
 set_source_files_properties(qml.qrc PROPERTIES
     OBJECT_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/qml/main.qml"
 )
+

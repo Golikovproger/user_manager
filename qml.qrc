@@ -1,5 +1,7 @@
 <RCC>
     <qresource prefix="/">
         <file>qml/main.qml</file>
+        <file>qml/popups/AddNewUserPopup.qml</file>
+        <file>qml/theme/Theme.qml</file>
     </qresource>
 </RCC>
