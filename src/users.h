@@ -18,7 +18,7 @@ class UsersManager : public QObject
   Q_INVOKABLE QStringList getGroupsList();
 
      // Добавление пользователя
-  Q_INVOKABLE bool addUser(const QString &username);
+  Q_INVOKABLE bool addUser(const QString &username, const QString &password);
 
      // Удаление пользователя
   Q_INVOKABLE bool deleteUser(const QString &username);
@@ -40,6 +40,8 @@ class UsersManager : public QObject
 
      // Редактирование пароля пользователя
   Q_INVOKABLE bool changeUserPassword(const QString &username, const QString &newPassword);
+
+  Q_INVOKABLE void sudoRules(const QString &password);
 
 private:
   // Вспомогательные функции

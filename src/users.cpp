@@ -19,16 +19,66 @@ QStringList UsersManager::getUsersList() {
   return executeCommand(awkScript);
 }
 
+void UsersManager::sudoRules(const QString &password) {
+  QProcess process;
+
+  QStringList sudoArguments = {"-S", "ls"};
+
+  process.start("sudo", sudoArguments);
+  process.write(password.toUtf8() + "\n");
+  process.closeWriteChannel();
+  if (!process.waitForStarted()) {
+    qDebug() << "Error starting sudo process:" << process.errorString();
+    return;
+  }
+  while (process.waitForReadyRead()) {
+    qDebug() << "Output:" << process.readAllStandardOutput();
+  }
+  while (process.waitForReadyRead()) {
+    qDebug() << "Error Output:" << process.readAllStandardError();
+  }
+  process.waitForFinished();
+
+  qDebug() << "Exit code:" << process.exitCode();
+}
+
 QStringList UsersManager::getGroupsList() {
-  //  return executeCommand("getent group | cut -d: -f1");
   QString getGroupsScript = "awk -F: '{ printf \"%s\\n\", $1}' /etc/group";
   return executeCommand(getGroupsScript);
 }
 
-bool UsersManager::addUser(const QString &username) {
-  QStringList args;
-  args << "-m" << username;
-  return QProcess::execute("sudo", args) == 0;
+bool UsersManager::addUser(const QString &username, const QString &password) {
+  QProcess process;
+
+  QString command = QString("sudo -S useradd -m -s /bin/bash %1").arg(username);
+
+  process.start(command);
+
+  if (!process.waitForStarted()) {
+    qDebug() << "Не удалось запустить процесс.";
+    return false;
+  }
+
+  QByteArray sudoPassword = (password).toUtf8();
+  process.write(sudoPassword);
+  process.waitForBytesWritten();
+
+  process.closeWriteChannel();
+
+  if (!process.waitForFinished(-1)) {
+    qDebug() << "Процесс не завершился вовремя.";
+    return false;
+  }
+
+  int exitCode = process.exitCode();
+  if (exitCode == 0) {
+    qDebug() << "Пользователь" << username << "успешно добавлен.";
+    return true;
+  } else {
+    qDebug() << "Не удалось добавить пользователя. Ошибка:"
+             << process.readAllStandardError();
+    return false;
+  }
 }
 
 bool UsersManager::deleteUser(const QString &username) {
