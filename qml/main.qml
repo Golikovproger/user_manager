@@ -27,7 +27,7 @@ ApplicationWindow {
         }
 
         function onUpdateGroupList() {
-            groupListView.model = users.getGroupsList()()
+            groupListView.model = users.getGroupsList()
         }
     }
 
@@ -143,46 +143,44 @@ ApplicationWindow {
                     font.bold: true
                 }
 
-//                ListView {
-//                    id: groupListView
-//                    Layout.fillWidth: true
-//                    Layout.fillHeight: true
-//                    model: ListModel {
-//                        ListElement { text: "Output will appear here" }
-//                    }
-//                    delegate: Item {
-//                        width: parent.width
-//                        height: 40
-
-//                        Rectangle {
-//                            width: parent.width
-//                            height: parent.height
-//                            color: currentGroup === model.name ? "orange" : "transparent"
-
-//                            Text {
-//                                anchors.centerIn: parent
-//                                text: model.name
-//                            }
-
-//                            MouseArea {
-//                                anchors.fill: parent
-//                                onClicked: {
-//                                    currentGroup = model.name
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-
                 ListView {
-                        id: groupListView
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        model: users.getGroupsList()
-                        delegate: Text {
-                            text: modelData
+                    id: groupListView
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    model: users.getGroupsList()
+                    delegate: Item {
+                        width: groupListView.width
+                        height: 40
+
+                        Rectangle {
+                            width: parent.width
+                            height: parent.height
+                            color: currentGroup === modelData ? "orange" : "transparent"
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: modelData
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: {
+                                    currentGroup = modelData
+                                }
+                            }
                         }
                     }
+                }
+
+//                ListView {
+//                        id: groupListView
+//                        Layout.fillWidth: true
+//                        Layout.fillHeight: true
+//                        model: users.getGroupsList()
+//                        delegate: Text {
+//                            text: modelData
+//                        }
+//                    }
 
                 RowLayout {
                     Layout.fillWidth: true
@@ -202,15 +200,7 @@ ApplicationWindow {
                         Layout.fillWidth: true
                         text: qsTr("Delete")
                         onClicked: {
-                            if (currentGroup !== "") {
-                                for (var i = 0; i < groupListView.model.count; i++) {
-                                    if (groupListView.model.get(i).name === currentGroup) {
-                                        groupListView.model.remove(i)
-                                        currentGroup = ""
-                                        break
-                                    }
-                                }
-                            }
+                            users.deleteGroup(currentGroup)
                         }
                     }
                 }

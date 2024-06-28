@@ -139,8 +139,36 @@ bool UsersManager::addGroup(const QString &groupname) {
 }
 
 bool UsersManager::deleteGroup(const QString &groupname) {
-  return QProcess::execute("sudo", QStringList() << "groupdel" << groupname) ==
-         0;
+  //  return QProcess::execute("sudo", QStringList() << "groupdel" << groupname)
+  //  ==
+  //         0;
+
+  QProcess process;
+
+  QString command = QString("sudo -S groupdel %1").arg(groupname);
+
+  process.start(command);
+
+  if (!process.waitForStarted()) {
+    qDebug() << "Не удалось запустить процесс.";
+    return false;
+  }
+
+  if (!process.waitForFinished(-1)) {
+    qDebug() << "Процесс не завершился вовремя.";
+    return false;
+  }
+
+  int exitCode = process.exitCode();
+  if (exitCode == 0) {
+    qDebug() << "Группа" << groupname << "успешно удалёна.";
+    emit updateGroupList();
+    return true;
+  } else {
+    qDebug() << "Не удалось удалить группу. Ошибка:"
+             << process.readAllStandardError();
+    return false;
+  }
 }
 
 bool UsersManager::addUserToGroup(const QString &username,
