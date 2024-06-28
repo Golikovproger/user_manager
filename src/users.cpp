@@ -1,7 +1,10 @@
 #include "users.h"
 #include <QProcess>
 
-UsersManager::UsersManager(QObject *parent) : QObject(parent) {}
+UsersManager::UsersManager(QObject *parent) : QObject(parent) {
+  QObject::connect(this, &UsersManager::updateUserList, this,
+                   &UsersManager::getUsersList);
+}
 
 QStringList UsersManager::getUsersList() {
   QString awkScript = "awk -F: '{ \
@@ -31,15 +34,15 @@ void UsersManager::sudoRules(const QString &password) {
     qDebug() << "Error starting sudo process:" << process.errorString();
     return;
   }
-  while (process.waitForReadyRead()) {
-    qDebug() << "Output:" << process.readAllStandardOutput();
-  }
-  while (process.waitForReadyRead()) {
-    qDebug() << "Error Output:" << process.readAllStandardError();
-  }
+  //  while (process.waitForReadyRead()) {
+  //    qDebug() << "Output:" << process.readAllStandardOutput();
+  //  }
+  //  while (process.waitForReadyRead()) {
+  //    qDebug() << "Error Output:" << process.readAllStandardError();
+  //  }
   process.waitForFinished();
 
-  qDebug() << "Exit code:" << process.exitCode();
+  //  qDebug() << "Exit code:" << process.exitCode();
 }
 
 QStringList UsersManager::getGroupsList() {
@@ -73,6 +76,7 @@ bool UsersManager::addUser(const QString &username, const QString &password) {
   int exitCode = process.exitCode();
   if (exitCode == 0) {
     qDebug() << "Пользователь" << username << "успешно добавлен.";
+    emit updateUserList();
     return true;
   } else {
     qDebug() << "Не удалось добавить пользователя. Ошибка:"
@@ -131,9 +135,11 @@ bool UsersManager::changeUserPassword(const QString &username,
 QStringList UsersManager::executeCommand(const QString &command) {
   QProcess process;
   process.start("/bin/sh", QStringList() << "-c" << command);
-  //  process.start(command);
   process.waitForFinished();
+
   QByteArray output = process.readAllStandardOutput();
   QString outputStr(output);
-  return outputStr.split("\n", QString::SkipEmptyParts);
+  QStringList outputList = outputStr.split("\n", QString::SkipEmptyParts);
+
+  return outputList;
 }

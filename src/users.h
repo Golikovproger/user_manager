@@ -11,12 +11,6 @@ class UsersManager : public QObject
       public:
                explicit UsersManager(QObject *parent = nullptr);
 
-     // Получение списка пользователей
-  Q_INVOKABLE QStringList getUsersList();
-
-     // Получение списка групп
-  Q_INVOKABLE QStringList getGroupsList();
-
      // Добавление пользователя
   Q_INVOKABLE bool addUser(const QString &username, const QString &password);
 
@@ -43,9 +37,21 @@ class UsersManager : public QObject
 
   Q_INVOKABLE void sudoRules(const QString &password);
 
+public slots:
+      // Получение списка пользователей
+  Q_INVOKABLE QStringList getUsersList();
+
+     // Получение списка групп
+  Q_INVOKABLE QStringList getGroupsList();
+
+
 private:
   // Вспомогательные функции
   QStringList executeCommand(const QString &command);
+
+
+signals:
+  void updateUserList();
 };
 
 #endif // USERSMANAGER_H

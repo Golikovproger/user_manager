@@ -16,6 +16,18 @@ ApplicationWindow {
     property string selectedUser: ""
     property string currentGroup: ""
 
+    Component.onCompleted: {
+        sudoPopup.open();
+    }
+
+    Connections {
+        target: users
+        function onUpdateUserList() {
+            userListView.model = users.getUsersList()
+        }
+    }
+
+
     Users {
         id: users
     }
@@ -37,57 +49,31 @@ ApplicationWindow {
             Layout.fillHeight: true
             spacing: Theme.big_gap
 
-//            ListView {
-//                id: userListView
-//                Layout.fillWidth: true
-//                Layout.preferredHeight: window.height / 2
-//                model: users.getUsersList()
-//                delegate: Item {
-//                    width: parent.width
-//                    height: 40
-
-//                    RowLayout {
-//                        Text {
-//                            text: model.name
-//                            Layout.fillWidth: true
-//                        }
-//                    }
-
-//                    MouseArea {
-//                        anchors.fill: parent
-//                        onClicked: {
-//                            selectedIndex = index
-//                            selectedUser = model.name
-//                        }
-//                    }
-//                }
-//            }
-
             ListView {
-                    id: listView
-                    Layout.fillWidth: true
-                                    Layout.preferredHeight: window.height / 2
-                    model: ListModel {
-                        ListElement { text: "Output will appear here" }
-                    }
-                    delegate: Text {
-                        text: model.text
-                    }
-                }
+                id: userListView
+                Layout.fillWidth: true
+                Layout.preferredHeight: window.height / 2
+                model: users.getUsersList()
+                delegate: Item {
+                    width: parent.width
+                    height: 40
 
-                Component.onCompleted: {
-                    var outputList = users.getUsersList()
-                    listView.model.clear();
-                    for (var i = 0; i < outputList.length; i++) {
-                        listView.model.append({"text": outputList[i]});
+                    RowLayout {
+                        Text {
+                            text: modelData
+                            Layout.fillWidth: true
+                        }
                     }
 
-                    var outputLists = users.getGroupsList()
-                    groupListView.model.clear();
-                    for (var j = 0; j < outputLists.length; j++) {
-                        groupListView.model.append({"text": outputLists[j]});
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            selectedIndex = index
+                            selectedUser = modelData
+                        }
                     }
                 }
+            }
 
             RowLayout {
                 Layout.fillWidth: true
@@ -187,11 +173,9 @@ ApplicationWindow {
                         id: groupListView
                         Layout.fillWidth: true
                         Layout.fillHeight: true
-                        model: ListModel {
-                            ListElement { text: "Output will appear here" }
-                        }
+                        model: users.getGroupsList()
                         delegate: Text {
-                            text: model.text
+                            text: modelData
                         }
                     }
 
@@ -267,6 +251,11 @@ ApplicationWindow {
                     placeholderText: qsTr("UserName")
                 }
 
+                TextField {
+                    id: password
+                    placeholderText: qsTr("Password")
+                }
+
                 RowLayout {
                     Layout.fillWidth: true
                     spacing: 10
@@ -293,11 +282,54 @@ ApplicationWindow {
                     Button {
                         text: qsTr("OK")
                         onClicked: {
+                            users.addUser(nameField.text, password.text)
                             newUserPopup.close()
                         }
                     }
                 }
             }
+        }
+    }
+
+    Popup {
+        id: sudoPopup
+        width: 300
+        height: 400
+        modal: true
+        closePolicy: Popup.NoAutoClose
+
+        Rectangle {
+            width: parent.width
+            height: parent.height
+            color: "white"
+            border.color: "black"
+            border.width: 1
+            radius: 5
+
+            ColumnLayout {
+                anchors.fill: parent
+                spacing: 20
+
+                TextField {
+                    Layout.fillHeight: true
+                    Layout.fillWidth: true
+                    id: sudopassword
+                    placeholderText: qsTr("SudoPassword")
+                }
+
+                Button {
+                    Layout.fillHeight: true
+                    Layout.fillWidth: true
+                    text: qsTr("ОК")
+                    onClicked: {
+                        users.sudoRules(sudopassword.text);
+                        sudoPopup.close();
+                    }
+                }
+            }
+
+
+
         }
     }
 }
