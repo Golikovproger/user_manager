@@ -212,9 +212,34 @@ bool UsersManager::addUserToGroup(const QString &username,
 
 bool UsersManager::removeUserFromGroup(const QString &username,
                                        const QString &groupname) {
-  return QProcess::execute("sudo", QStringList()
-                                       << "gpasswd"
-                                       << "-d" << username << groupname) == 0;
+  QProcess process;
+
+  QString command =
+      QString("sudo -S gpasswd -d %1 %2").arg(username, groupname);
+
+  process.start(command);
+
+  if (!process.waitForStarted()) {
+    qDebug() << "Не удалось запустить процесс.";
+    return false;
+  }
+
+  if (!process.waitForFinished(-1)) {
+    qDebug() << "Процесс не завершился вовремя.";
+    return false;
+  }
+
+  int exitCode = process.exitCode();
+  if (exitCode == 0) {
+    qDebug() << "Пользователь" << username << "успешно удален из группы"
+             << groupname;
+    //    emit updateUserGroupList();
+    return true;
+  } else {
+    qDebug() << "Не удалось удалить пользователя из группы. Ошибка:"
+             << process.readAllStandardError();
+    return false;
+  }
 }
 
 bool UsersManager::createUserHome(const QString &username) {
