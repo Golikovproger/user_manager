@@ -331,7 +331,7 @@ ApplicationWindow {
                             else
                             {
                                 sudopassword.text = ""
-                                sudopassword.placeholderText = "Не верный пароль!"
+                                sudopassword.placeholderText = "Неверный пароль!"
                                 sudopassword.placeholderTextColor = Theme.red
                             }
                         }
