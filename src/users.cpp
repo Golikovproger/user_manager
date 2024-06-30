@@ -189,9 +189,33 @@ bool UsersManager::removeUserFromGroup(const QString &username,
 }
 
 bool UsersManager::createUserHome(const QString &username) {
-  return QProcess::execute("sudo", QStringList() << "mkdir"
-                                                 << "-p"
-                                                 << "/home/" + username) == 0;
+
+  QProcess process;
+
+  QString command = QString("sudo -S mkhomedir_helper %1").arg(username);
+
+  process.start(command);
+
+  if (!process.waitForStarted()) {
+    qDebug() << "Не удалось запустить процесс.";
+    return false;
+  }
+
+  if (!process.waitForFinished(-1)) {
+    qDebug() << "Процесс не завершился вовремя.";
+    return false;
+  }
+
+  int exitCode = process.exitCode();
+  if (exitCode == 0) {
+    qDebug() << "Домашний каталог для пользователя" << username
+             << "успешно создан.";
+    return true;
+  } else {
+    qDebug() << "Не удалось создать домашний каталог. Ошибка:"
+             << process.readAllStandardError();
+    return false;
+  }
 }
 
 bool UsersManager::changeUserPassword(const QString &username,
