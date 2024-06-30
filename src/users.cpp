@@ -88,6 +88,11 @@ bool UsersManager::addUser(const QString &username, const QString &password) {
 bool UsersManager::deleteUser(const QString &username) {
   QProcess process;
 
+  if (username == qgetenv("USER")) {
+    qDebug() << "Нельзя удалить текущего пользователя.";
+    return false;
+  }
+
   QString command = QString("sudo -S userdel -r %1").arg(username);
 
   process.start(command);
@@ -175,10 +180,34 @@ bool UsersManager::deleteGroup(const QString &groupname) {
 
 bool UsersManager::addUserToGroup(const QString &username,
                                   const QString &groupname) {
-  return QProcess::execute("sudo", QStringList()
-                                       << "usermod"
-                                       << "-a"
-                                       << "-G" << groupname << username) == 0;
+  QProcess process;
+
+  QString command =
+      QString("sudo -S usermod -a -G %1 %2").arg(groupname, username);
+
+  process.start(command);
+
+  if (!process.waitForStarted()) {
+    qDebug() << "Не удалось запустить процесс.";
+    return false;
+  }
+
+  if (!process.waitForFinished(-1)) {
+    qDebug() << "Процесс не завершился вовремя.";
+    return false;
+  }
+
+  int exitCode = process.exitCode();
+  if (exitCode == 0) {
+    qDebug() << "Пользователь" << username << "успешно добавлен в группу"
+             << groupname;
+    //    emit updateUserGroupList();
+    return true;
+  } else {
+    qDebug() << "Не удалось добавить пользователя в группу. Ошибка:"
+             << process.readAllStandardError();
+    return false;
+  }
 }
 
 bool UsersManager::removeUserFromGroup(const QString &username,

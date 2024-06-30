@@ -37,6 +37,9 @@ class UsersManager : public QObject
 
   Q_INVOKABLE bool sudoRules(const QString &password);
 
+    // Получение имени текущего пользователя
+  Q_INVOKABLE QString getUserName() { return qgetenv("USER"); };
+
 public slots:
       // Получение списка пользователей
   Q_INVOKABLE QStringList getUsersList();
@@ -46,12 +49,14 @@ public slots:
 
 
 private:
-  // Вспомогательные функции
   QStringList executeCommand(const QString &command);
 
 
 signals:
+    // Сигнал на обновление списка пользователей
   void updateUserList();
+
+    // Сигнал на обновление списка групп
   void updateGroupList();
 };
 
