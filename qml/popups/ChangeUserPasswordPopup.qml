@@ -6,7 +6,6 @@ import "../theme"
 import "../widgets"
 import Users 1.0
 
-
 Item {
     id: root
     implicitHeight: 500
@@ -18,31 +17,26 @@ Item {
 
     CustomButton {
         anchors.fill: parent
-        text: qsTr("Добавить")
-        onClicked: newUserPopup.open()
-    }
-
-    Connections {
-        target: users
-        function onUpdateUserList() {
-            userListView.model = users.getUsersList()
-        }
+        text: qsTr("Сменить пароль")
+        enabled: window.selectedUser !== ""
+        onClicked: changePassPopup.open()
     }
 
     Popup {
-        id: newUserPopup
+        id: changePassPopup
         width: 400
         height: 350
         modal: true
-        x: (window.width - width) / 2
-        y: (parent.height - window.height) / 2
+        x: (parent.width - window.width - width / 2) / 2
+        y: (parent.height - window.height  + height) / 2
         closePolicy: Popup.NoAutoClose
         focus: true
+
         background: Rectangle { color: Theme.card_background_color}
 
         onClosed: {
-            nameField.text = ""
-            password.text = ""
+            passwordField.text = ""
+            confirmPasswordField.text = ""
         }
 
         Rectangle {
@@ -59,7 +53,7 @@ Item {
                 anchors.centerIn: parent
 
                 CustomText {
-                    text: qsTr("Создание нового пользователя")
+                    text: qsTr("Смена пароля " + window.selectedUser)
                     Layout.fillWidth: true
                     font.pointSize: Theme.font_regular_size
                 }
@@ -72,23 +66,22 @@ Item {
                     CustomText {
                         Layout.preferredWidth: parent.width / 3
                         Layout.fillHeight: true
-                        text: qsTr("Имя пользователя:")
+                        text: qsTr("Введите новый пароль:")
                     }
+
                     TextField {
-                        id: nameField
+                        id: passwordField
                         Layout.fillHeight: true
                         Layout.fillWidth: true
+                        echoMode: TextInput.Password
                         Layout.margins: Theme.big_gap
-                        placeholderText: qsTr("Имя пользователя")
+                        placeholderText: qsTr("Пароль")
                         background: Rectangle {
                             color: Theme.background_color
                             border.color: Theme.accent_color
                         }
                         font.pixelSize: Theme.font_regular_size
                         color: Theme.white
-                        validator: RegExpValidator {
-                            regExp: /[a-z0-9._-]+/
-                        }
                     }
                 }
 
@@ -100,17 +93,16 @@ Item {
                     CustomText {
                         Layout.preferredWidth: parent.width / 3
                         Layout.fillHeight: true
-                        text: qsTr("Пароль:")
+                        text: qsTr("Подтвердите пароль:")
                     }
+
                     TextField {
-                        id: password
+                        id: confirmPasswordField
+                        echoMode: TextInput.Password
                         Layout.fillHeight: true
                         Layout.fillWidth: true
                         Layout.margins: Theme.big_gap
                         placeholderText: qsTr("Пароль")
-                        validator: RegExpValidator {
-                            regExp: /[a-z0-9._-]+/
-                        }
                         background: Rectangle {
                             color: Theme.background_color
                             border.color: Theme.accent_color
@@ -127,28 +119,37 @@ Item {
 
                     CustomButton {
                         Layout.fillHeight: true
-                        Layout.preferredWidth: parent.width / 2
+                        Layout.preferredWidth: parent.width / 2 - Theme.gap
                         text: qsTr("Отменить")
-                        onClicked: newUserPopup.close()
+                        onClicked: {
+                            changePassPopup.close();
+                        }
                     }
 
                     CustomButton {
                         Layout.fillHeight: true
                         Layout.fillWidth: true
-                        text: qsTr("Создать")
-                        enabled: nameField.text !== "" && password.text !== ""
+                        text: qsTr("Изменить")
+                        enabled: passwordField.text !== "" && confirmPasswordField.text !== ""
                         onClicked: {
-                            users.addUser(nameField.text, password.text)
-                            newUserPopup.close()
+                            if (passwordField.text === confirmPasswordField.text) {
+                                users.changeUserPassword(window.selectedUser, passwordField.text)
+                                changePassPopup.close();
+                            }
+                            else
+                            {
+                                passwordField.text = ""
+                                confirmPasswordField.text = ""
+                                passwordField.placeholderText = "Пароли не совпадают!"
+                                passwordField.placeholderTextColor = Theme.red
+                                confirmPasswordField.placeholderText = "Пароли не совпадают!"
+                                confirmPasswordField.placeholderTextColor = Theme.red
+                            }
                         }
                     }
                 }
-
-                Item {
-                    Layout.fillHeight: true
-                    Layout.fillWidth: true
-                }
             }
         }
+
     }
 }

@@ -9,7 +9,7 @@ QtObject {
 
     readonly property color card_background_color: "#3b3b3d" // Цвет фона карточки
 
-    readonly property color button_background_color: "#515257" // Цвет фона кнопки
+    readonly property color button_background_color: "#4c4c4c" // Цвет фона кнопки
     readonly property color button_hovered_color: "#65666d" // Цвет кнопки под курсором
     readonly property color button_checked_color: "#65666d" // Цвет нажатой кнопки
     readonly property color button_disabled_color: "#4a4a4c" // Цвет неактивной кнопки

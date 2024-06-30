@@ -3,21 +3,28 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 
 import "theme"
+import "widgets"
+import "popups"
 import Users 1.0
 
 ApplicationWindow {
     id: window
     visible: true
-    width: 1366
-    height: 768
-    title: qsTr("User & Groups")
+    width: 854
+    height: 480
+    minimumWidth: 640
+    minimumHeight: 360
+    color: Theme.background_color
 
     property int selectedIndex: -1
     property string selectedUser: ""
-    property string currentGroup: ""
+
+    Users {
+        id: users
+    }
 
     Component.onCompleted: {
-        sudoPopup.open();
+        authPopup.open()
     }
 
     Connections {
@@ -25,361 +32,312 @@ ApplicationWindow {
         function onUpdateUserList() {
             userListView.model = users.getUsersList()
         }
-
-        function onUpdateGroupList() {
-            groupListView.model = users.getGroupsList()
-        }
     }
 
-
-    Users {
-        id: users
-    }
-
-    ListModel {
-        id: userModel
-        ListElement { name: "Alice"; group: "Admin"; info: "Alice is an administrator." }
-        ListElement { name: "Bob"; group: "User"; info: "Bob is a standard user." }
-        ListElement { name: "Charlie"; group: "Guest"; info: "Charlie is a guest." }
-    }
-
-    RowLayout {
+    ColumnLayout {
         anchors.fill: parent
-        anchors.margins: Theme.big_gap
         spacing: Theme.big_gap
+        anchors.margins: Theme.big_gap
 
-        ColumnLayout {
-            Layout.preferredWidth: parent.width / 3
-            Layout.fillHeight: true
+        RowLayout {
+            Layout.fillWidth: true
+            Layout.preferredHeight: window.height / 3
             spacing: Theme.big_gap
 
-            ListView {
-                id: userListView
-                Layout.fillWidth: true
-                Layout.preferredHeight: window.height / 2
-                model: users.getUsersList()
-                delegate: Item {
-                    width: parent.width
-                    height: 40
-
-                    RowLayout {
-                        Text {
-                            text: modelData
-                            Layout.fillWidth: true
-                        }
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: {
-                            selectedIndex = index
-                            selectedUser = modelData
-                        }
-                    }
-                }
-            }
-
-            RowLayout {
-                Layout.fillWidth: true
-
-                Button {
-                    Layout.fillWidth: true
-                    text: qsTr("Добавить")
-                    onClicked: newUserPopup.open()
-                }
-
-                Button {
-                    Layout.fillWidth: true
-                    text: qsTr("Удалить")
-                    onClicked: users.deleteUser(selectedUser)
-                }
-            }
-
-            Button {
-                id: manageGroups
-                Layout.fillWidth: true
-                text: qsTr("Управление группами")
-                onClicked: groupPopup.open()
-            }
-        }
-
-        Rectangle {
-            id: userInfoBlock
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            color: "#f0f0f0"
-            border.color: "#a0a0a0"
-
-            Text {
-                id: userInfoText
-                anchors.centerIn: parent
-                text: selectedIndex != -1 ? "Name: " + userModel.get(selectedIndex).name + "\nGroup: " + userModel.get(selectedIndex).group + "\nInfo: " + userModel.get(selectedIndex).info : "Select a user to see the details"
-                wrapMode: Text.Wrap
-            }
-        }
-    }
-
-    Popup {
-        id: groupPopup
-        width: 400
-        height: 300
-        modal: true
-
-        Rectangle {
-            width: parent.width
-            height: parent.height
-            color: "white"
-            border.color: "black"
-            border.width: 1
-            radius: 5
-
-            ColumnLayout {
-                anchors.fill: parent
-                anchors.margins: 10
-                spacing: 10
-
-                Text {
-                    text: qsTr("Groups settings")
-                    font.bold: true
-                }
+            Rectangle {
+                Layout.fillHeight: true
+                Layout.preferredWidth: parent.width / 3 + Theme.gap * 2
+                color: Theme.card_background_color
+                border.color: Theme.black
 
                 ListView {
-                    id: groupListView
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    model: users.getGroupsList()
+                    id: userListView
+                    anchors.fill: parent
+                    anchors.margins: Theme.gap
+                    clip: true
+                    model: users.getUsersList()
                     delegate: Item {
-                        width: groupListView.width
+                        width: parent.width
                         height: 40
 
                         Rectangle {
                             width: parent.width
                             height: parent.height
-                            color: currentGroup === modelData ? "orange" : "transparent"
+                            color: selectedUser === modelData ? Theme.accent_color : (mouseArea.containsMouse ? "gray" : "transparent")
 
-                            Text {
-                                anchors.centerIn: parent
-                                text: modelData
+                            RowLayout {
+                                anchors.fill: parent
+                                Image {
+                                    id: icon
+                                    source: "../assets/user.png"
+                                }
+                                Text {
+                                    text: modelData
+                                    color: Theme.white
+                                    Layout.fillWidth: true
+                                    elide: Text.ElideRight
+                                }
                             }
 
                             MouseArea {
+                                id: mouseArea
                                 anchors.fill: parent
+                                hoverEnabled: true
                                 onClicked: {
-                                    currentGroup = modelData
+                                    selectedIndex = index
+                                    selectedUser = modelData
                                 }
                             }
                         }
                     }
+
+                    ScrollBar.vertical: ScrollBar {
+                        policy: ScrollBar.AlwaysOn
+                        width: Theme.gap
+                        active: true
+
+                    }
                 }
+            }
 
-//                ListView {
-//                        id: groupListView
-//                        Layout.fillWidth: true
-//                        Layout.fillHeight: true
-//                        model: users.getGroupsList()
-//                        delegate: Text {
-//                            text: modelData
-//                        }
-//                    }
+            Rectangle {
+                Layout.fillHeight: true
+                Layout.fillWidth: true
+                color: "transparent"
+                ColumnLayout {
+                    anchors.fill: parent
+                    anchors.margins: Theme.big_gap
+                    spacing: Theme.big_gap
 
-                RowLayout {
-                    Layout.fillWidth: true
-
-                    Button {
+                    RowLayout {
                         Layout.fillWidth: true
-                        text: qsTr("Add")
-                        onClicked: newGroupPopup.open()
-                    }
+                        Layout.preferredHeight: parent.height / 5
+                        spacing: Theme.gap
 
-                    Button {
-                        Layout.fillWidth: true
-                        text: qsTr("Properties")
-                    }
+                        Image {
+                            id: currentUserIcon
+                            source: "../assets/current_user.png"
+                        }
 
-                    Button {
-                        Layout.fillWidth: true
-                        text: qsTr("Delete")
-                        onClicked: {
-                            users.deleteGroup(currentGroup)
+                        CustomText {
+                            text: selectedIndex != -1 ? qsTr("Имя: " + selectedUser) : qsTr("Имя пользователя")
+                            wrapMode: Text.Wrap
+                            color: Theme.white
+                        }
+                        Item {
+                            Layout.fillHeight: true
+                            Layout.fillWidth: true
+                        }
+
+                        CustomButton {
+                            text: qsTr("Создать домашнюю папку")
+                            enabled: selectedUser !== ""
+                            onClicked: users.createUserHome(selectedUser)
+                            Layout.preferredHeight: deleteUserButton.height
+                            Layout.preferredWidth: deleteUserButton.width * 1.5
                         }
                     }
-                }
 
-                Button {
-                    Layout.fillWidth: true
-                    text: qsTr("Close")
-                    onClicked: groupPopup.close()
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: parent.height / 5
+                        spacing: Theme.gap
+
+                        CustomText {
+                            id: passText
+                            text: selectedIndex != -1 ? qsTr("Пароль: *****") : qsTr("Пароль пользователя")
+                            color: Theme.white
+                        }
+
+                        Item {
+                            Layout.fillHeight: true
+                            Layout.fillWidth: true
+                        }
+
+                        ChangeUserPasswordPopup {
+                            Layout.preferredHeight: deleteUserButton.height
+                            Layout.preferredWidth: deleteUserButton.width
+                        }
+                    }
+
+                    Item {
+                        Layout.fillHeight: true
+                        Layout.fillWidth: true
+                    }
+                }
+            }
+        }
+
+        RowLayout {
+            Layout.fillWidth: true
+            Layout.preferredHeight: window.height / 5
+            spacing: Theme.big_gap
+
+            Item {
+                id: buttonsContainer
+                Layout.fillHeight: true
+                Layout.preferredWidth: window.width / 3
+
+                ColumnLayout {
+                    anchors.fill: parent
+                    spacing: Theme.gap
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: parent.height / 2
+                        spacing: Theme.gap
+
+                        AddNewUserPopup {
+                            Layout.fillHeight: true
+                            Layout.preferredWidth: parent.width / 2
+                        }
+
+                        CustomButton {
+                            id: deleteUserButton
+                            text: qsTr("Удалить")
+                            enabled: selectedUser !== ""
+                            Layout.fillHeight: true
+                            Layout.fillWidth: true
+                            onClicked: {
+                                users.deleteUser(selectedUser)
+                                selectedUser = ""
+                            }
+                        }
+                    }
+                    GroupManagerPopup {
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: parent.height / 2
+                    }
+                }
+            }
+
+            Item {
+                Layout.fillHeight: true
+                Layout.fillWidth: true
+            }
+        }
+
+        Item {
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+        }
+
+        RowLayout {
+            Layout.fillWidth: true
+            Layout.preferredHeight: window.height / 10
+
+            AboutProgram {
+                Layout.fillHeight: true
+                Layout.preferredWidth: parent.width / 5
+            }
+
+            Item {
+                Layout.fillHeight: true
+                Layout.fillWidth: true
+            }
+
+            CustomButton {
+                Layout.fillHeight: true
+                Layout.preferredWidth: parent.width / 5
+                text: qsTr("Закрыть")
+                onClicked: {
+                    Qt.quit()
                 }
             }
         }
     }
 
     Popup {
-        id: newUserPopup
-        width: 300
-        height: 400
-        modal: true
-
-        Rectangle {
-            width: parent.width
-            height: parent.height
-            color: "white"
-            border.color: "black"
-            border.width: 1
-            radius: 5
-
-            ColumnLayout {
-                anchors.fill: parent
-                anchors.margins: 10
-                spacing: 10
-
-                Text {
-                    text: qsTr("Create New User")
-                    font.bold: true
-                }
-
-                Text {
-                    text: qsTr("Create a new user")
-                }
-
-                TextField {
-                    id: nameField
-                    placeholderText: qsTr("UserName")
-                }
-
-                TextField {
-                    id: password
-                    placeholderText: qsTr("Password")
-                }
-
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: 10
-
-                    Text {
-                        text: qsTr("Username must consist of:")
-                    }
-
-                    Text {
-                        text: "• lower case letters from the English alphabet\n• digits\n• any of the characters '.', '-' and '_'"
-                        wrapMode: Text.Wrap
-                    }
-                }
-
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: 10
-
-                    Button {
-                        text: qsTr("Cancel")
-                        onClicked: newUserPopup.close()
-                    }
-
-                    Button {
-                        text: qsTr("OK")
-                        onClicked: {
-                            users.addUser(nameField.text, password.text)
-                            newUserPopup.close()
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    Popup {
-        id: newGroupPopup
-        width: 300
-        height: 400
-        modal: true
-
-        Rectangle {
-            width: parent.width
-            height: parent.height
-            color: "white"
-            border.color: "black"
-            border.width: 1
-            radius: 5
-
-            ColumnLayout {
-                anchors.fill: parent
-                anchors.margins: 10
-                spacing: 10
-
-                Text {
-                    text: qsTr("Create New Group")
-                    font.bold: true
-                }
-
-                Text {
-                    text: qsTr("Create a new Group")
-                }
-
-                TextField {
-                    id: groupField
-                    placeholderText: qsTr("GroupName")
-                }
-
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: 10
-
-                    Button {
-                        text: qsTr("Cancel")
-                        onClicked: newGroupPopup.close()
-                    }
-
-                    Button {
-                        text: qsTr("OK")
-                        onClicked: {
-                            users.addGroup(groupField.text)
-                            newGroupPopup.close()
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    Popup {
-        id: sudoPopup
-        width: 300
+        id: authPopup
+        width: 400
         height: 400
         modal: true
         closePolicy: Popup.NoAutoClose
+        anchors.centerIn: parent
+        background: Rectangle {anchors.fill: parent; color:"transparent"}
+
+        property bool passwordVisible: false
 
         Rectangle {
             width: parent.width
             height: parent.height
-            color: "white"
-            border.color: "black"
-            border.width: 1
-            radius: 5
+            color: Theme.white
+            radius: 10
 
             ColumnLayout {
                 anchors.fill: parent
-                spacing: 20
+                spacing: Theme.gap
+                anchors.margins: Theme.big_gap
+                anchors.centerIn: parent
 
-                TextField {
-                    Layout.fillHeight: true
+                CustomText {
+                    color: Theme.black
+                    text: qsTr("Необходима аутентификация")
+                    font.pointSize: Theme.font_regular_size
                     Layout.fillWidth: true
-                    id: sudopassword
-                    placeholderText: qsTr("SudoPassword")
                 }
 
-                Button {
+                CustomText {
+                    color: Theme.black
+                    Layout.fillWidth: true
+                    text: qsTr("Вам необходимо пройти аутентификацию, чтобы изменить конфигурацию системы.")
+                }
+
+                Image {
+                    source: "../assets/auth_user.png"
+                    Layout.alignment: Qt.AlignCenter
+                }
+
+                CustomText {
+                    color: Theme.black
+                    text: qsTr(users.getUserName())
+                    Layout.fillWidth: true
+                }
+
+                TextField {
+                    id: sudopassword
+                    echoMode: authPopup.passwordVisible ? TextInput.Normal : TextInput.Password
                     Layout.fillHeight: true
                     Layout.fillWidth: true
-                    text: qsTr("ОК")
-                    onClicked: {
-                        users.sudoRules(sudopassword.text);
-                        sudoPopup.close();
+                    Layout.margins: Theme.big_gap
+                    placeholderText: qsTr("Пароль")
+                    background: Rectangle {
+                        border.color: Theme.accent_color
+                    }
+                    font.pixelSize: Theme.font_big_size
+                }
+
+                RowLayout {
+                    Layout.fillHeight: true
+                    Layout.fillWidth: true
+                    spacing: Theme.gap
+
+                    CustomButton {
+                        Layout.fillHeight: true
+                        Layout.preferredWidth: parent.width / 2 - Theme.gap
+                        text: qsTr("Отменить")
+                        onClicked: {
+                            Qt.quit()
+                        }
+                    }
+
+                    CustomButton {
+                        Layout.fillHeight: true
+                        Layout.fillWidth: true
+                        text: qsTr("Авторизация")
+                        enabled: sudopassword.text !== ""
+                        onClicked: {
+                            if (users.sudoRules(sudopassword.text))
+                                authPopup.close();
+                            else
+                            {
+                                sudopassword.text = ""
+                                sudopassword.placeholderText = "Не верный пароль!"
+                                sudopassword.placeholderTextColor = Theme.red
+                            }
+                        }
                     }
                 }
             }
-
-
-
         }
     }
 }
