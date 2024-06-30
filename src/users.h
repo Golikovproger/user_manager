@@ -35,7 +35,7 @@ class UsersManager : public QObject
      // Редактирование пароля пользователя
   Q_INVOKABLE bool changeUserPassword(const QString &username, const QString &newPassword);
 
-  Q_INVOKABLE void sudoRules(const QString &password);
+  Q_INVOKABLE bool sudoRules(const QString &password);
 
 public slots:
       // Получение списка пользователей

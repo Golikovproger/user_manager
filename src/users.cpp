@@ -24,7 +24,7 @@ QStringList UsersManager::getUsersList() {
   return executeCommand(awkScript);
 }
 
-void UsersManager::sudoRules(const QString &password) {
+bool UsersManager::sudoRules(const QString &password) {
   QProcess process;
 
   QStringList sudoArguments = {"-S", "ls"};
@@ -34,9 +34,15 @@ void UsersManager::sudoRules(const QString &password) {
   process.closeWriteChannel();
   if (!process.waitForStarted()) {
     qDebug() << "Error starting sudo process:" << process.errorString();
-    return;
+    return false;
   }
   process.waitForFinished();
+  int exitCode = process.exitCode();
+  if (exitCode == 0) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 QStringList UsersManager::getGroupsList() {
@@ -139,10 +145,6 @@ bool UsersManager::addGroup(const QString &groupname) {
 }
 
 bool UsersManager::deleteGroup(const QString &groupname) {
-  //  return QProcess::execute("sudo", QStringList() << "groupdel" << groupname)
-  //  ==
-  //         0;
-
   QProcess process;
 
   QString command = QString("sudo -S groupdel %1").arg(groupname);
@@ -194,14 +196,37 @@ bool UsersManager::createUserHome(const QString &username) {
 
 bool UsersManager::changeUserPassword(const QString &username,
                                       const QString &newPassword) {
-  QStringList args;
-  args << username;
-  QProcess passwdProcess;
-  passwdProcess.start("sudo", QStringList() << "passwd" << username);
-  passwdProcess.waitForStarted();
-  passwdProcess.write(newPassword.toUtf8() + "\n");
-  passwdProcess.waitForFinished();
-  return passwdProcess.exitCode() == 0;
+  QProcess process;
+
+  QString command = QString("sudo -S passwd %1").arg(username);
+
+  process.start(command);
+
+  if (!process.waitForStarted()) {
+    qDebug() << "Не удалось запустить процесс.";
+    return false;
+  }
+
+  QByteArray passwordInput = (newPassword + "\n" + newPassword + "\n").toUtf8();
+  process.write(passwordInput);
+  process.waitForBytesWritten();
+
+  process.closeWriteChannel();
+
+  if (!process.waitForFinished(-1)) {
+    qDebug() << "Процесс не завершился вовремя.";
+    return false;
+  }
+
+  int exitCode = process.exitCode();
+  if (exitCode == 0) {
+    qDebug() << "Пароль для пользователя" << username << "успешно изменен.";
+    return true;
+  } else {
+    qDebug() << "Не удалось изменить пароль. Ошибка:"
+             << process.readAllStandardError();
+    return false;
+  }
 }
 
 QStringList UsersManager::executeCommand(const QString &command) {
