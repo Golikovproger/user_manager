@@ -28,7 +28,7 @@ Item {
         height: 350
         modal: true
         x: (parent.width - window.width - width / 2) / 2
-        y: (parent.height - window.height  + height) / 2
+        y: (parent.height - window.height  + height / 2) / 2
         closePolicy: Popup.NoAutoClose
         focus: true
 

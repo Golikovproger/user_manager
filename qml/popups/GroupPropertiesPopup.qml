@@ -20,6 +20,13 @@ Item {
        id: selectedUsersModel
     }
 
+    Connections {
+        target: users
+        function onUpdateGroupList() {
+            groupListView.model = users.getGroupsList()
+        }
+    }
+
     CustomButton {
         anchors.fill: parent
         text: qsTr("Свойства")
@@ -39,6 +46,9 @@ Item {
 
         background: Rectangle { color: Theme.card_background_color}
 
+        onOpened: {
+            users_components__list_view.model = users.getUsersList()
+        }
         Rectangle {
             anchors.fill: parent
             width: parent.width
@@ -103,16 +113,19 @@ Item {
                         spacing: Theme.gap
                         model: users.getUsersList()
                         delegate: CustomCheckBox {
+                            id: usersCheckBox
                             text: modelData
                             background_color_: Theme.card_background_color
                             accent_color_: Theme.accent_color
                             font_size_: Theme.font_small_size
                             font_color_: Theme.text_regular_color
-                            checked: false
+
+                            checked: users.getUsersInGroup(currentGroup).indexOf(modelData) !== -1
 
                             onClicked: {
                                 if (checked) {
                                     selectedUsersModel.append({ "name": modelData });
+                                    users.addUserToGroup(modelData, currentGroup);
                                 } else {
                                     for (var i = 0; i < selectedUsersModel.count; i++) {
                                         if (selectedUsersModel.get(i).name === modelData) {
@@ -120,6 +133,7 @@ Item {
                                             break;
                                         }
                                     }
+                                    users.removeUserFromGroup(modelData, currentGroup);
                                 }
                             }
                         }

@@ -47,6 +47,8 @@ public slots:
      // Получение списка групп
   Q_INVOKABLE QStringList getGroupsList();
 
+     // Получение списка пользователей в группе
+  Q_INVOKABLE QStringList getUsersInGroup(const QString &groupName);
 
 private:
   QStringList executeCommand(const QString &command);

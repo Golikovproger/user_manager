@@ -307,6 +307,37 @@ bool UsersManager::changeUserPassword(const QString &username,
   }
 }
 
+QStringList UsersManager::getUsersInGroup(const QString &groupName) {
+
+  QString awkScript =
+      QString("getent group %1 | awk -F: '{print $4}'").arg(groupName);
+  QStringList usersInGroup =
+      executeCommand(awkScript).join("").split(",", QString::SkipEmptyParts);
+
+  QStringList filteredUsers;
+  foreach (const QString &user, usersInGroup) {
+    QString userInfoScript = QString("getent passwd %1 | awk -F: '{ \
+            if ($3 == 0) { \
+                role = \"Administrator (root)\" \
+            } else if ($3 >= 1000) { \
+                role = \"Regular User\" \
+            } else { \
+                role = \"Unknown\" \
+            } \
+            if (role != \"Unknown\" && role != \"System/Service Account\" && $1 != \"root\" && $1 != \"nobody\") { \
+                printf \" %s\\n\", $1 \
+            } \
+        }'")
+                                 .arg(user);
+    QStringList userDetails = executeCommand(userInfoScript);
+    if (!userDetails.isEmpty()) {
+      filteredUsers << userDetails.first();
+    }
+  }
+
+  return filteredUsers;
+}
+
 QStringList UsersManager::executeCommand(const QString &command) {
   QProcess process;
   process.start("/bin/sh", QStringList() << "-c" << command);
