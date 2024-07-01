@@ -13,10 +13,6 @@ Item {
 
     property string currentGroup: ""
 
-    Users {
-        id: users
-    }
-
     Connections {
         target: users
         function onUpdateGroupList() {

@@ -12,10 +12,6 @@ Item {
     implicitHeight: 500
     implicitWidth: 500
 
-    Users {
-        id: users
-    }
-
     ListModel {
        id: selectedUsersModel
     }

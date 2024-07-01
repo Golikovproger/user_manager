@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QStringList>
 #include <QDebug>
+#include "loger.h"
 
 class UsersManager : public QObject
 {
@@ -52,6 +53,7 @@ public slots:
 
 private:
   QStringList executeCommand(const QString &command);
+  Logger log;
 
 
 signals:

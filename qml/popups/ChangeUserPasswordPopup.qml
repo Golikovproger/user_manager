@@ -11,10 +11,6 @@ Item {
     implicitHeight: 500
     implicitWidth: 500
 
-    Users {
-        id: users
-    }
-
     CustomButton {
         anchors.fill: parent
         text: qsTr("Сменить пароль")

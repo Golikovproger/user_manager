@@ -58,7 +58,8 @@ bool UsersManager::addUser(const QString &username, const QString &password) {
   process.start(command);
 
   if (!process.waitForStarted()) {
-    qDebug() << "Не удалось запустить процесс.";
+    QString message = "Не удалось запустить процесс.";
+    log.logAction(message);
     return false;
   }
 
@@ -69,18 +70,21 @@ bool UsersManager::addUser(const QString &username, const QString &password) {
   process.closeWriteChannel();
 
   if (!process.waitForFinished(-1)) {
-    qDebug() << "Процесс не завершился вовремя.";
+    QString message = "Процесс не завершился вовремя.";
+    log.logAction(message);
     return false;
   }
 
   int exitCode = process.exitCode();
   if (exitCode == 0) {
-    qDebug() << "Пользователь" << username << "успешно добавлен.";
+    QString message = "Пользователь " + username + " успешно добавлен.";
+    log.logAction(message);
     emit updateUserList();
     return true;
   } else {
-    qDebug() << "Не удалось добавить пользователя. Ошибка:"
-             << process.readAllStandardError();
+    QString message = "Не удалось добавить пользователя. Ошибка: " +
+                      process.readAllStandardError();
+    log.logAction(message);
     return false;
   }
 }
@@ -89,7 +93,8 @@ bool UsersManager::deleteUser(const QString &username) {
   QProcess process;
 
   if (username == qgetenv("USER")) {
-    qDebug() << "Нельзя удалить текущего пользователя.";
+    QString message = "Нельзя удалить текущего пользователя.";
+    log.logAction(message);
     return false;
   }
 
@@ -98,23 +103,27 @@ bool UsersManager::deleteUser(const QString &username) {
   process.start(command);
 
   if (!process.waitForStarted()) {
-    qDebug() << "Не удалось запустить процесс.";
+    QString message = "Не удалось запустить процесс.";
+    log.logAction(message);
     return false;
   }
 
   if (!process.waitForFinished(-1)) {
-    qDebug() << "Процесс не завершился вовремя.";
+    QString message = "Процесс не завершился вовремя.";
+    log.logAction(message);
     return false;
   }
 
   int exitCode = process.exitCode();
   if (exitCode == 0) {
-    qDebug() << "Пользователь" << username << "успешно удалён.";
+    QString message = "Пользователь " + username + " успешно удалён.";
+    log.logAction(message);
     emit updateUserList();
     return true;
   } else {
-    qDebug() << "Не удалось удалить пользователя. Ошибка:"
-             << process.readAllStandardError();
+    QString message = "Не удалось удалить пользователя. Ошибка: " +
+                      process.readAllStandardError();
+    log.logAction(message);
     return false;
   }
 }
@@ -128,23 +137,27 @@ bool UsersManager::addGroup(const QString &groupname) {
   process.start(command);
 
   if (!process.waitForStarted()) {
-    qDebug() << "Не удалось запустить процесс.";
+    QString message = "Не удалось запустить процесс.";
+    log.logAction(message);
     return false;
   }
 
   if (!process.waitForFinished(-1)) {
-    qDebug() << "Процесс не завершился вовремя.";
+    QString message = "Процесс не завершился вовремя.";
+    log.logAction(message);
     return false;
   }
 
   int exitCode = process.exitCode();
   if (exitCode == 0) {
-    qDebug() << "Группа" << groupname << "успешно добавлена.";
+    QString message = "Группа " + groupname + " успешно добавлена.";
+    log.logAction(message);
     emit updateGroupList();
     return true;
   } else {
-    qDebug() << "Не удалось добавить группу. Ошибка:"
-             << process.readAllStandardError();
+    QString message =
+        "Не удалось добавить группу. Ошибка: " + process.readAllStandardError();
+    log.logAction(message);
     return false;
   }
 }
@@ -157,23 +170,27 @@ bool UsersManager::deleteGroup(const QString &groupname) {
   process.start(command);
 
   if (!process.waitForStarted()) {
-    qDebug() << "Не удалось запустить процесс.";
+    QString message = "Не удалось запустить процесс.";
+    log.logAction(message);
     return false;
   }
 
   if (!process.waitForFinished(-1)) {
-    qDebug() << "Процесс не завершился вовремя.";
+    QString message = "Процесс не завершился вовремя.";
+    log.logAction(message);
     return false;
   }
 
   int exitCode = process.exitCode();
   if (exitCode == 0) {
-    qDebug() << "Группа" << groupname << "успешно удалёна.";
+    QString message = "Группа " + groupname + " успешно удалена.";
+    log.logAction(message);
     emit updateGroupList();
     return true;
   } else {
-    qDebug() << "Не удалось удалить группу. Ошибка:"
-             << process.readAllStandardError();
+    QString message =
+        "Не удалось удалить группу. Ошибка: " + process.readAllStandardError();
+    log.logAction(message);
     return false;
   }
 }
@@ -188,24 +205,28 @@ bool UsersManager::addUserToGroup(const QString &username,
   process.start(command);
 
   if (!process.waitForStarted()) {
-    qDebug() << "Не удалось запустить процесс.";
+    QString message = "Не удалось запустить процесс.";
+    log.logAction(message);
     return false;
   }
 
   if (!process.waitForFinished(-1)) {
-    qDebug() << "Процесс не завершился вовремя.";
+    QString message = "Процесс не завершился вовремя.";
+    log.logAction(message);
     return false;
   }
 
   int exitCode = process.exitCode();
   if (exitCode == 0) {
-    qDebug() << "Пользователь" << username << "успешно добавлен в группу"
-             << groupname;
+    QString message =
+        "Пользователь " + username + " успешно добавлен в группы " + groupname;
+    log.logAction(message);
     //    emit updateUserGroupList();
     return true;
   } else {
-    qDebug() << "Не удалось добавить пользователя в группу. Ошибка:"
-             << process.readAllStandardError();
+    QString message = "Не удалось добавить пользователя в группу. Ошибка: " +
+                      process.readAllStandardError();
+    log.logAction(message);
     return false;
   }
 }
@@ -220,24 +241,28 @@ bool UsersManager::removeUserFromGroup(const QString &username,
   process.start(command);
 
   if (!process.waitForStarted()) {
-    qDebug() << "Не удалось запустить процесс.";
+    QString message = "Не удалось запустить процесс.";
+    log.logAction(message);
     return false;
   }
 
   if (!process.waitForFinished(-1)) {
-    qDebug() << "Процесс не завершился вовремя.";
+    QString message = "Процесс не завершился вовремя.";
+    log.logAction(message);
     return false;
   }
 
   int exitCode = process.exitCode();
   if (exitCode == 0) {
-    qDebug() << "Пользователь" << username << "успешно удален из группы"
-             << groupname;
+    QString message =
+        "Пользователь " + username + " успешно удален из группы " + groupname;
+    log.logAction(message);
     //    emit updateUserGroupList();
     return true;
   } else {
-    qDebug() << "Не удалось удалить пользователя из группы. Ошибка:"
-             << process.readAllStandardError();
+    QString message = "Не удалось удалить пользователя из группу. Ошибка: " +
+                      process.readAllStandardError();
+    log.logAction(message);
     return false;
   }
 }
@@ -251,23 +276,27 @@ bool UsersManager::createUserHome(const QString &username) {
   process.start(command);
 
   if (!process.waitForStarted()) {
-    qDebug() << "Не удалось запустить процесс.";
+    QString message = "Не удалось запустить процесс.";
+    log.logAction(message);
     return false;
   }
 
   if (!process.waitForFinished(-1)) {
-    qDebug() << "Процесс не завершился вовремя.";
+    QString message = "Процесс не завершился вовремя.";
+    log.logAction(message);
     return false;
   }
 
   int exitCode = process.exitCode();
   if (exitCode == 0) {
-    qDebug() << "Домашний каталог для пользователя" << username
-             << "успешно создан.";
+    QString message =
+        "Домашний каталог для пользователя " + username + " успешно создан.";
+    log.logAction(message);
     return true;
   } else {
-    qDebug() << "Не удалось создать домашний каталог. Ошибка:"
-             << process.readAllStandardError();
+    QString message = "Не удалось создать домашний каталог. Ошибка: " +
+                      process.readAllStandardError();
+    log.logAction(message);
     return false;
   }
 }
@@ -281,7 +310,8 @@ bool UsersManager::changeUserPassword(const QString &username,
   process.start(command);
 
   if (!process.waitForStarted()) {
-    qDebug() << "Не удалось запустить процесс.";
+    QString message = "Не удалось запустить процесс.";
+    log.logAction(message);
     return false;
   }
 
@@ -292,13 +322,16 @@ bool UsersManager::changeUserPassword(const QString &username,
   process.closeWriteChannel();
 
   if (!process.waitForFinished(-1)) {
-    qDebug() << "Процесс не завершился вовремя.";
+    QString message = "Процесс не завершился вовремя.";
+    log.logAction(message);
     return false;
   }
 
   int exitCode = process.exitCode();
   if (exitCode == 0) {
-    qDebug() << "Пароль для пользователя" << username << "успешно изменен.";
+    QString message =
+        "Пароль для пользователя " + username + " успешно изменен.";
+    log.logAction(message);
     return true;
   } else {
     qDebug() << "Не удалось изменить пароль. Ошибка:"
