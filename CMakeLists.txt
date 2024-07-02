@@ -25,3 +25,23 @@ set_source_files_properties(qml.qrc PROPERTIES
     OBJECT_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/qml/main.qml"
 )
 
+set(CMAKE_INSTALL_PREFIX "/usr/local" CACHE PATH "Installation Directory" FORCE)
+
+install(TARGETS user_manager RUNTIME DESTINATION bin)
+
+# CPack Configuration
+set(CPACK_GENERATOR "DEB")
+set(CPACK_PACKAGE_NAME "user_manager")
+set(CPACK_PACKAGE_VERSION "1.0.0")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "User Manager Application")
+set(CPACK_PACKAGE_CONTACT "maksimgolikov19@gmail.com")
+set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}")
+set(CPACK_SOURCE_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Golikov Maksim")
+set(CPACK_DEBIAN_PACKAGE_SECTION "utils")
+set(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "qt5-default")
+set(CPACK_RPM_PACKAGE_REQUIRES "qt5-qtbase")
+
+include(CPack)
+
