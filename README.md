@@ -17,4 +17,5 @@ db.setPassword("1234"); // Укажите пароль пользователя 
 2. `cd build`
 3. `cmake ..`
 4. `make`
-5. `./user_manager`
+5. `cpack`
+6. `./user_manager`
