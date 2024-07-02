@@ -58,3 +58,28 @@ void Logger::logAction(const QString &message) {
              << query.lastError().text();
   }
 }
+
+bool Logger::exportToCSV(const QString &fileName) {
+  QString filePath = QCoreApplication::applicationDirPath() + "/" + fileName;
+  QFile file(filePath);
+  if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    qDebug() << "Ошибка: Невозможно открыть файл для записи.";
+    return false;
+  }
+
+  QTextStream out(&file);
+  QSqlQuery query("SELECT id, datetime, message FROM logger_table");
+
+  out << "id,datetime,message\n";
+
+  while (query.next()) {
+    int id = query.value(0).toInt();
+    QString datetime = query.value(1).toString();
+    QString message = query.value(2).toString();
+
+    out << id << "," << datetime << "," << message << "\n";
+  }
+
+  file.close();
+  return true;
+}

@@ -41,6 +41,8 @@ class UsersManager : public QObject
     // Получение имени текущего пользователя
   Q_INVOKABLE QString getUserName() { return qgetenv("USER"); };
 
+  Q_INVOKABLE void exportToCSV() { log.exportToCSV("log.csv"); };
+
 public slots:
       // Получение списка пользователей
   Q_INVOKABLE QStringList getUsersList();
@@ -54,7 +56,6 @@ public slots:
 private:
   QStringList executeCommand(const QString &command);
   Logger log;
-
 
 signals:
     // Сигнал на обновление списка пользователей

@@ -239,7 +239,7 @@ ApplicationWindow {
                 Layout.fillHeight: true
                 Layout.preferredWidth: parent.width / 5
                 text: qsTr("Выгрузить лог")
-//                onClicked:
+                onClicked: users.exportToCSV()
             }
 
             Item {
