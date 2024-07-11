@@ -82,8 +82,11 @@ Item {
                         }
                         font.pixelSize: Theme.font_regular_size
                         color: Theme.white
-                        validator: RegExpValidator {
-                            regExp: /[a-z0-9._-]+/
+//                        validator: RegExpValidator {
+//                            regExp: /[a-z0-9._-]+/
+//                        }
+                        validator: RegularExpressionValidator {
+                            regularExpression: /[a-z0-9._-]+/
                         }
                     }
                 }
@@ -104,8 +107,11 @@ Item {
                         Layout.fillWidth: true
                         Layout.margins: Theme.big_gap
                         placeholderText: qsTr("Пароль")
-                        validator: RegExpValidator {
-                            regExp: /[a-z0-9._-]+/
+//                        validator: RegExpValidator {
+//                            regExp: /[a-z0-9._-]+/
+//                        }
+                        validator: RegularExpressionValidator {
+                            regularExpression: /[a-z0-9._-]+/
                         }
                         background: Rectangle {
                             color: Theme.background_color

@@ -9,17 +9,29 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt5 COMPONENTS Core Gui Qml Quick Sql REQUIRED)
+set(QT_VERSION 5)
 
-add_executable(user_manager
-    assets.qrc
-    qml.qrc
+find_package(Qt${QT_VERSION} COMPONENTS Core Gui Qml Quick Sql REQUIRED)
+
+set(PROJECT_SOURCES
     src/main.cpp
     src/users.cpp
     src/loger.cpp
 )
 
-target_link_libraries(user_manager PRIVATE Qt5::Core Qt5::Gui Qt5::Sql Qt5::Qml Qt5::Quick)
+set(PROJECT_HEADERS
+    src/users.h
+    src/loger.h
+)
+
+add_executable(user_manager
+    assets.qrc
+    qml.qrc
+    ${PROJECT_SOURCES}
+    ${PROJECT_HEADERS}
+)
+
+target_link_libraries(user_manager PRIVATE Qt${QT_VERSION}::Core Qt${QT_VERSION}::Gui Qt${QT_VERSION}::Sql Qt${QT_VERSION}::Qml Qt${QT_VERSION}::Quick)
 
 set_source_files_properties(qml.qrc PROPERTIES
     OBJECT_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/qml/main.qml"
@@ -40,8 +52,8 @@ set(CPACK_SOURCE_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSIO
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Golikov Maksim")
 set(CPACK_DEBIAN_PACKAGE_SECTION "utils")
 set(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "qt5-default")
-set(CPACK_RPM_PACKAGE_REQUIRES "qt5-qtbase")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "qt${QT_VERSION}-default")
+set(CPACK_RPM_PACKAGE_REQUIRES "qt${QT_VERSION}-qtbase")
 
 include(CPack)
 

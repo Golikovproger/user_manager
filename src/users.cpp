@@ -345,7 +345,7 @@ QStringList UsersManager::getUsersInGroup(const QString &groupName) {
   QString awkScript =
       QString("getent group %1 | awk -F: '{print $4}'").arg(groupName);
   QStringList usersInGroup =
-      executeCommand(awkScript).join("").split(",", QString::SkipEmptyParts);
+      executeCommand(awkScript).join("").split(",", Qt::SkipEmptyParts);
 
   QStringList filteredUsers;
   foreach (const QString &user, usersInGroup) {
@@ -378,7 +378,7 @@ QStringList UsersManager::executeCommand(const QString &command) {
 
   QByteArray output = process.readAllStandardOutput();
   QString outputStr(output);
-  QStringList outputList = outputStr.split("\n", QString::SkipEmptyParts);
+  QStringList outputList = outputStr.split("\n", Qt::SkipEmptyParts);
 
   return outputList;
 }
